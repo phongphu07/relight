@@ -3,9 +3,20 @@ import { Light } from "@/app/page";
 type Props = {
   light: Light;
   updateLight: (updated: Partial<Light>) => void;
+  onDelete: () => void;
+  showComparison: boolean;
+  toggleComparison: () => void;
 };
 
-export default function LightControlPanel({ light, updateLight }: Props) {
+export default function LightControlPanel({
+  light,
+  updateLight,
+  onDelete,
+  showComparison,
+  toggleComparison,
+}: Props) {
+  const sliderStyle =
+    "w-full h-2 rounded-full bg-gradient-to-r from-blue-200 to-blue-800 appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:transition-all";
   return (
     <div className="bg-gray-800 p-4 rounded-xl text-white w-full text-sm space-y-4">
       <h2 className="text-lg font-bold">Light Settings</h2>
@@ -35,7 +46,7 @@ export default function LightControlPanel({ light, updateLight }: Props) {
           onChange={(e) =>
             updateLight({ brightness: parseFloat(e.target.value) })
           }
-          className="w-full"
+          className={sliderStyle}
         />
       </div>
 
@@ -53,7 +64,7 @@ export default function LightControlPanel({ light, updateLight }: Props) {
           onChange={(e) =>
             updateLight({ distance: parseFloat(e.target.value) })
           }
-          className="w-full"
+          className={sliderStyle}
         />
       </div>
 
@@ -67,9 +78,28 @@ export default function LightControlPanel({ light, updateLight }: Props) {
           step="1"
           value={light.radius}
           onChange={(e) => updateLight({ radius: parseFloat(e.target.value) })}
-          className="w-full"
+          className={sliderStyle}
         />
       </div>
+
+      {/* Toggle Comparison */}
+      <div>
+        <label className="block mb-1">Comparison Mode</label>
+        <button
+          onClick={toggleComparison}
+          className="w-full bg-purple-600 hover:bg-purple-700 py-1 rounded"
+        >
+          {showComparison ? "Hide Comparison" : "Show Comparison"}
+        </button>
+      </div>
+
+      {/* Delete Button */}
+      <button
+        onClick={onDelete}
+        className="w-full bg-red-600 hover:bg-red-700 py-1 rounded mt-2"
+      >
+        Delete Light
+      </button>
     </div>
   );
 }

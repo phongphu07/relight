@@ -1,4 +1,6 @@
 "use client";
+
+import CompareSlider from "@/components/Compare";
 import LightCanvas from "@/components/LightCanva";
 import LightControlPanel from "@/components/LightControlPanel";
 import { useState } from "react";
@@ -16,7 +18,8 @@ function Relight() {
   const [image, setImage] = useState<File | null>(null);
   const [lights, setLights] = useState<Light[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [showNodes, setShowNodes] = useState(true); // moved here
+  const [showNodes] = useState(true);
+  const [showComparison, setShowComparison] = useState(false);
 
   const handleAddLight = () => {
     if (!image) return;
@@ -24,7 +27,7 @@ function Relight() {
     const newLight: Light = {
       id,
       pos: { x: 256, y: 256 },
-      brightness: 3.3,
+      brightness: 1.7,
       distance: 800,
       radius: 100,
       color: "#ffffff",
@@ -45,17 +48,18 @@ function Relight() {
     );
   };
 
+  const onDeleteLight = () => {
+    if (selectedId !== null) {
+      setLights((prev) => prev.filter((lt) => lt.id !== selectedId));
+      setSelectedId(null);
+    }
+  };
+
+  const toggleComparison = () => setShowComparison((prev) => !prev);
+
   return (
     <div className="min-h-screen bg-neutral-900 text-white flex flex-col items-center p-6 gap-4">
       <h1 className="text-2xl font-bold">AI Relight Tool</h1>
-
-      {/* Review toggle button */}
-      <button
-        onClick={() => setShowNodes((prev) => !prev)}
-        className="px-4 py-1 bg-blue-600 text-white rounded mb-2"
-      >
-        {showNodes ? "Review" : "Edit"}
-      </button>
 
       <input
         type="file"
@@ -66,20 +70,35 @@ function Relight() {
 
       {image && (
         <div className="flex gap-6">
-          <LightCanvas
-            image={URL.createObjectURL(image)}
-            lights={lights}
-            onDrop={handleDrop}
-            selectedId={selectedId}
-            setSelectedId={setSelectedId}
-            showNodes={showNodes}
-          />
+          {showComparison ? (
+            <CompareSlider
+              original={URL.createObjectURL(image)}
+              lights={lights}
+              selectedId={selectedId}
+              showNodes={false}
+              onDrop={handleDrop}
+              setSelectedId={setSelectedId}
+            />
+          ) : (
+            <LightCanvas
+              image={URL.createObjectURL(image)}
+              lights={lights}
+              onDrop={handleDrop}
+              selectedId={selectedId}
+              setSelectedId={setSelectedId}
+              showNodes={showNodes}
+              showComparison={false}
+            />
+          )}
 
           <div className="w-[300px]">
             {selectedId !== null && (
               <LightControlPanel
                 light={lights.find((l) => l.id === selectedId)!}
                 updateLight={(upd) => updateLight(selectedId, upd)}
+                onDelete={onDeleteLight}
+                showComparison={showComparison}
+                toggleComparison={toggleComparison}
               />
             )}
             <button

@@ -15,7 +15,6 @@ type Props = {
   selectedId: number | null;
   setSelectedId: (id: number) => void;
   showNodes: boolean;
-  showComparison?: boolean;
 };
 
 function hexToRGB(hex: string): [number, number, number] {
@@ -30,7 +29,6 @@ export default function LightCanvas({
   selectedId,
   setSelectedId,
   showNodes,
-  showComparison,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -99,12 +97,16 @@ export default function LightCanvas({
         const { x: lx, y: ly } = lt.pos;
         const b = lt.brightness;
         const r = lt.radius;
+        const d = lt.distance;
         const [lr, lg, lb] = hexToRGB(lt.color);
 
-        for (let dy = -r; dy <= r; dy++) {
-          for (let dx = -r; dx <= r; dx++) {
+        // Increase distance influence
+        const effectiveRadius = r + d * 0.3; // stronger distance influence
+
+        for (let dy = -effectiveRadius; dy <= effectiveRadius; dy++) {
+          for (let dx = -effectiveRadius; dx <= effectiveRadius; dx++) {
             const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist > r) continue;
+            if (dist > effectiveRadius) continue;
 
             const x = lx + dx;
             const y = ly + dy;
@@ -112,7 +114,7 @@ export default function LightCanvas({
               continue;
 
             const idx = (Math.floor(y) * CANVAS_WIDTH + Math.floor(x)) * 4;
-            const weight = 1 - dist / r;
+            const weight = 1 - dist / effectiveRadius;
             const factor = 1 + (b - 1) * weight;
 
             data[idx] = Math.min(255, data[idx] * factor * (lr / 255));
@@ -139,9 +141,6 @@ export default function LightCanvas({
 
       {lights.map((lt) => {
         const isSelected = lt.id === selectedId;
-
-        if (showComparison) return null;
-
         return (
           <React.Fragment key={lt.id}>
             {showNodes && (
