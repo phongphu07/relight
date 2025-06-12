@@ -24,10 +24,10 @@ function Relight() {
     const newLight: Light = {
       id,
       pos: { x: 256, y: 256 },
-      brightness: 1.0,
+      brightness: 3.3,
       distance: 800,
       radius: 100,
-      color: "#effdc9",
+      color: "#ffffff",
     };
     setLights((prev) => [...prev, newLight]);
     setSelectedId(id);
